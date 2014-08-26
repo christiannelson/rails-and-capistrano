@@ -19,6 +19,9 @@ gem 'uglifier'
 
 gem 'awesome_print'
 
+gem 'capistrano', '~> 3.1'
+gem 'capistrano-rails', '~> 1.1'
+
 group :production, :staging do
   gem 'rails_stdout_logging'
 end
