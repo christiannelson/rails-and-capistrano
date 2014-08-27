@@ -53,6 +53,11 @@
     - name: apt | install node.js
       apt: name=nodejs state=latest                # required by the rails asset pipeline
 
+    - name: copy | install unicorn init.d script
+      copy: src=files/init.d/unicorn dest=/etc/init.d/unicorn mode=0755
+
+    - name: command | install unicorn init.d symlinks
+      command: update-rc.d unicorn defaults
 
     # Create and configure a deploy user.
     - name: user | create a deploy user
