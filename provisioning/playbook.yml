@@ -44,6 +44,12 @@
     - name: apt | install nginx
       apt: name=nginx state=latest
 
+    - name: copy | nginx configuration
+      copy: src=files/nginx.conf dest=/etc/nginx/nginx.conf backup=yes
+
+    - name: service | reload nginx
+      service: name=nginx state=reloaded
+
     - name: apt | install node.js
       apt: name=nodejs state=latest                # required by the rails asset pipeline
 
