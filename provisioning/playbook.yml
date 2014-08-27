@@ -73,7 +73,7 @@
       copy: src=files/gemrc dest=/home/deploy/.gemrc owner=deploy group=deploy mode=0644
 
     
-    # Directory for deployed applications
+    # Directory for the deployed application
     - name: file | mkdir /var/www
       file: path=/var/www state=directory owner=root group=deploy mode=0775
 
@@ -84,16 +84,17 @@
       with_items:
         - bundler
 
+
     # Final steps for setting up the application.
-    - name: postgresql_db | create db 'rails_and_capistrano_staging'
+    - name: file | create application shared directory
+      file: path=/var/www/rails-and-capistrano/shared/ state=directory owner=deploy group=deploy mode=0775
+
+    - name: copy | install application configuration
+      copy: src=files/configuration dest=/var/www/rails-and-capistrano/shared/configuration owner=deploy group=deploy mode=0660
+
+    - name: lineinfile | source application's configuration
+      lineinfile: dest=/home/deploy/.bashrc insertafter='# for examples.*$' line='\nsource /var/www/rails-and-capistrano/shared/configuration'
+
+    - name: postgresql_db | create application database
       sudo_user: postgres
       postgresql_db: name=rails_and_capistrano_staging
-
-    - name: lineinfile | add rail_env to deploy user's env
-      lineinfile: dest=/home/deploy/.bashrc insertafter='# for examples.*$' line='\nexport RAILS_ENV=staging'
-
-    - name: lineinfile | add secret_key to deploy user's env
-      lineinfile: dest=/home/deploy/.bashrc insertafter='RAILS_ENV.*$' line='export SECRET_KEY_BASE=6e32207902d0c5a8fd38dd6863a72109cfc3d162483cadcf1794d097486826ab'
-
-    - name: lineinfile | add database_url to deploy user's env
-      lineinfile: dest=/home/deploy/.bashrc insertafter='SECRET_KEY_BASE.*$' line='export DATABASE_URL=postgres://deploy:deploy@localhost:5432/rails_and_capistrano_staging'

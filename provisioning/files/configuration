@@ -1,0 +1,5 @@
+# These are settings that are loaded into the environment for reading by the environment at runtime.
+
+export RAILS_ENV=staging
+export SECRET_KEY_BASE=6e32207902d0c5a8fd38dd6863a72109cfc3d162483cadcf1794d097486826ab
+export DATABASE_URL=postgres://deploy:deploy@localhost:5432/rails_and_capistrano_staging
