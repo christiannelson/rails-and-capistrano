@@ -3,12 +3,12 @@
 Sample Rails application that illustrates using Capistrano for deployment to a Vagrant VM.
 
 **Details**
-* Simple Rails 4.1 (generated using [raygun](https://github.com/carbonfive/raygun) with slight mods)
+* Ubuntu Server 14.04.1
+* Ansible script for provisioning Ubuntu as a web/app/db server
 * PostgreSQL 9.3 Database
 * Nginx web server (configured to serve static assets)
 * Unicorn application server (configured for zero-downtime deploys)
-* Ubuntu Server 14.04.1
-* Ansible script for complete provisioning
+* Simple Rails 4.1 Application (generated using [raygun](https://github.com/carbonfive/raygun) with slight mods)
 * Capistrano 3 deployment configuration
 
 # Getting Started
@@ -25,7 +25,7 @@ each step should execute without error. If there's an error, stop and correct be
 ## 2. Create and Provision a Server with Vagrant
 
 We need a 'machine' to deploy to. Rather than spin up a cloud vm, this project includes a Vagrant file and Ansible
-configuration with detailed provisioning instructions.
+configuration with detailed provisioning instructions. It's worth noting that Vagrant is only used here for convenience, in the real world, we would deploy to the cloud or some remote server. Though, parts of the Ansiable script would still apply.
 
 **Prerequisites**
 
@@ -37,15 +37,15 @@ configuration with detailed provisioning instructions.
 1. ``vagrant box add ubuntu-trusty https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box``
 1. ``vagrant up``
 
-This will take a while. It's spinning up a new vm and then using ansible (see [playbook.yml](provisioning/playbook.yml))
+This will take a while. It's spinning up a new vm and then using Ansible (see [playbook.yml](provisioning/playbook.yml))
 to provision the new virtual machine. Basically, it's installing all of the foundational software, updating
-system configuration, creating users, and generally getting the machine ready to be a rails application server.
+system configuration, creating users, and generally getting the machine ready to be a Rails application server, web server, and database server.
 
 ## 3. Deploy the Application using Capistrano
 
 ``bundle exec cap staging deploy``
 
-This also takes a while and is very verbose, at the end though, you should see a message that suggests it deployed the
+This also takes a while and is very verbose, at the end though, there will be a message that suggests it deployed the
 master branch correctly.
 
 Open [http://192.168.50.100](http://192.168.50.100). You should see a large "Hello, World!" greeting.
