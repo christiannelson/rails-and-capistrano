@@ -1,0 +1,100 @@
+---
+- hosts: all
+  sudo:  true
+
+  tasks:
+    # Install foundational packages and services.
+    - name: apt | add brightbox ruby repository
+      apt_repository: repo='ppa:brightbox/ruby-ng'
+
+    - name: apt | update all caches and packages
+      apt: update_cache=yes upgrade=yes
+
+    - name: apt | install various build utilities
+      apt: name={{ item }}
+      with_items:
+        - build-essential
+        - libssl-dev
+        - libreadline-dev
+        - git
+
+    - name: apt | install ruby
+      apt: name={{ item }} state=latest
+      with_items:
+        - ruby2.1
+        - ruby2.1-dev
+
+    - name: apt | install postgresql
+      apt: name={{ item }} state=latest
+      with_items:
+        - postgresql
+        - libpq-dev                                # required to compile the pg gem
+        - python-psycopg2                          # required by postgresql_user
+
+    - name: lineinfile | trust connections as user postgres
+      lineinfile: dest=/etc/postgresql/9.3/main/pg_hba.conf state=present regexp='^(local.+all.+postgres.+)peer' line='\1trust' backrefs=yes
+
+    - name: postgresql_user | create deploy db user
+      sudo_user: postgres
+      postgresql_user: name=deploy password=deploy role_attr_flags=SUPERUSER
+
+    - name: service | reload postgresql
+      service: name=postgresql state=reloaded
+
+    - name: apt | install nginx
+      apt: name=nginx state=latest
+
+    - name: copy | nginx configuration
+      copy: src=files/nginx.conf dest=/etc/nginx/nginx.conf backup=yes
+
+    - name: service | reload nginx
+      service: name=nginx state=reloaded
+
+    - name: apt | install node.js
+      apt: name=nodejs state=latest                # required by the rails asset pipeline
+
+    - name: copy | install unicorn init.d script
+      copy: src=files/init.d/unicorn dest=/etc/init.d/unicorn mode=0755
+
+    - name: command | install unicorn init.d symlinks
+      command: update-rc.d unicorn defaults
+
+    # Create and configure a deploy user.
+    - name: user | create a deploy user
+      user: name=deploy shell=/bin/bash
+
+    - name: authorized_key | add ssh key for access
+      authorized_key: user=deploy key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+    - name: lineinfile | update sudoers to empower deploy user
+      lineinfile: dest=/etc/sudoers regexp='^%deploy' line='%deploy ALL=(ALL) NOPASSWD:ALL' validate='visudo -cf %s'
+
+    - name: copy | install .gemrc
+      copy: src=files/gemrc dest=/home/deploy/.gemrc owner=deploy group=deploy mode=0644
+
+    
+    # Directory for the deployed application
+    - name: file | mkdir /var/www
+      file: path=/var/www state=directory owner=root group=deploy mode=0775
+
+    
+    # Required gems that are 'outside' of the project's dependencies
+    - name: gem | install bundler
+      gem: name={{ item }} state=latest user_install=no
+      with_items:
+        - bundler
+
+
+    # Final steps for setting up the application.
+    - name: file | create application shared directory
+      file: path=/var/www/rails-and-capistrano/shared/ state=directory owner=deploy group=deploy mode=0775
+
+    - name: copy | install application configuration
+      copy: src=files/configuration dest=/var/www/rails-and-capistrano/shared/configuration owner=deploy group=deploy mode=0660
+
+    - name: lineinfile | source application's configuration
+      lineinfile: dest=/home/deploy/.bashrc insertafter='# for examples.*$' line='\nsource /var/www/rails-and-capistrano/shared/configuration'
+
+    - name: postgresql_db | create application database
+      sudo_user: postgres
+      postgresql_db: name=rails_and_capistrano_staging

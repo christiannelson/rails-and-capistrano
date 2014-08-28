@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# /etc/init.d/unicorn start
+
+### BEGIN INIT INFO
+# Provides:	         unicorn
+# Required-Start:    $local_fs $remote_fs $network $syslog $named
+# Required-Stop:     $local_fs $remote_fs $network $syslog $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+### END INIT INFO
+
+set -e
+
+sig () {
+  test -s "$PID" && kill -$1 `cat "$PID"`
+}
+
+oldsig () {
+  test -s "$OLD_PID" && kill -$1 `cat "$OLD_PID"`
+}
+
+cmd () {
+  case $1 in
+    start)
+      sig 0 && echo >&2 "Already running" && exit 0
+      echo "Starting"
+      $CMD
+      ;;
+    stop)
+      sig QUIT && echo "Stopping" && exit 0
+      echo >&2 "Not running"
+      ;;
+    force-stop)
+      sig TERM && echo "Forcing a stop" && exit 0
+      echo >&2 "Not running"
+      ;;
+    restart|reload)
+      sig USR2 && sleep 5 && oldsig QUIT && echo "Killing old master" `cat $OLD_PID` && exit 0
+      echo >&2 "Couldn't reload, starting '$CMD' instead"
+      $CMD
+      ;;
+    upgrade)
+      sig USR2 && echo Upgraded && exit 0
+      echo >&2 "Couldn't upgrade, starting '$CMD' instead"
+      $CMD
+      ;;
+    rotate)
+      sig USR1 && echo rotated logs OK && exit 0
+      echo >&2 "Couldn't rotate logs" && exit 1
+      ;;
+    *)
+      echo >&2 "Usage: $0 <start|stop|restart|upgrade|rotate|force-stop>"
+      exit 1
+      ;;
+    esac
+}
+
+APP_ROOT=/var/www/rails-and-capistrano
+APP_SHARED=$APP_ROOT/shared
+RAILS_ROOT=$APP_ROOT/current
+
+cd $RAILS_ROOT || exit 1
+
+export PID=/run/unicorn.pid
+export OLD_PID=$PID.oldbin
+
+# Source the application's configuration.
+. $APP_SHARED/configuration
+
+CMD="$APP_SHARED/bin/unicorn -c $RAILS_ROOT/config/unicorn.rb -D"
+
+# run the start/stop/etc command
+# $1 contains the start/stop/etc command
+cmd $1

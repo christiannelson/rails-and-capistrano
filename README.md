@@ -1,105 +1,60 @@
 # Rails And Capistrano
 
-...
+Sample Rails application that illustrates using Capistrano for deployment to a Vagrant VM.
 
-Generated with [Raygun](https://github.com/carbonfive/raygun).
+**Details**
+* Simple Rails 4.1 (generated using [raygun](https://github.com/carbonfive/raygun) with slight mods)
+* PostgreSQL 9.3 Database
+* Nginx web server (configured to serve static assets)
+* Unicorn application server (configured for zero-downtime deploys)
+* Ubuntu Server 14.04.1
+* Ansible script for complete provisioning
+* Capistrano 3 deployment configuration
 
-# Development
+# Getting Started
 
-## Getting Started
+This project includes automation so that setting up requires only a few (hefty) steps. If the prerequisites are met,
+each step should execute without error. If there's an error, stop and correct before moving on to the next step.
 
-### Requirements
+## 1. Git Clone
 
-To run the specs or fire up the server, be sure you have these installed:
+1. ``git clone git@github.com:christiannelson/rails-and-capistrano.git``
+1. ``cd rails-and-capistrano``
+1. ``bundle``
 
-* Ruby 2.1 (see [.ruby-version](.ruby-version)).
-* PostgreSQL 9.x (```brew install postgresql```) with superuser 'postgres' with no password (```createuser -s postgres```).
-* PhantomJS for Capybara and Javascript testing (```brew install phantomjs```).
+## 2. Create and Provision a Server with Vagrant
 
-### First Time Setup
+We need a 'machine' to deploy to. Rather than spin up a cloud vm, this project includes a Vagrant file and Ansible
+configuration with detailed provisioning instructions.
 
-After cloning, run these commands to install missing gems and prepare the database.
+**Prerequisites**
 
-    $ gem install bundler
-    $ bundle
-    $ rake db:setup db:sample_data
+1. [Vagrant](https://www.vagrantup.com/) (tested with v1.6.3)
+1. [Virtual Box](https://www.virtualbox.org/) (tested with v4.3.14)
 
-Note, ```rake db:sample_data``` loads a small set of data for development. Check out [db/sample_data.rb](db/sample_data.rb)
-for details.
+**Instructions**
 
-### Running the Specs
+1. ``vagrant box add ubuntu-trusty https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box``
+1. ``vagrant up``
 
-To run all Ruby and Javascript specs.
+This will take a while. It's spinning up a new vm and then using ansible (see [playbook.yml](provisioning/playbook.yml))
+to provision the new virtual machine. Basically, it's installing all of the foundational software, updating
+system configuration, creating users, and generally getting the machine ready to be a rails application server.
 
-    $ rake
+## 3. Deploy the Application using Capistrano
 
-### Running the Application Locally
+``bundle exec cap staging deploy``
 
-    $ foreman start
-    $ open http://localhost:3000
+This also takes a while and is very verbose, at the end though, you should see a message that suggests it deployed the
+master branch correctly.
 
-## Conventions
-
-### Git
-
-* Branch ```development``` is auto-deployed to acceptance.
-* Branch ```master``` is auto-deployed to production.
-* Create feature branches off of ```development``` using the naming convention ```(features|chores|bugs)/a-brief-description-######```, where ###### is the tracker id.
-* Rebase your branch before merging into ```development``` to produce clean merge bubbles.
-* Retain merge commits for multi-commit branches when merging into ```development``` (e.g. ```git merge --no-ff branchname```).
-* Craft atomic commits that make sense on their own and can be easily cherry-picked or reverted if necessary.
-
-### Code Style
-
-Generally speaking, follow the [Ruby Style Guide](https://github.com/bbatsov/ruby-style-guide). Additionally, these are other guidelines adopted by the team:
-
-**Always use double quotes for test/spec descriptions, unless the subject is a class/module.**
-
-```ruby
-describe SomeController do
-  context "when logged in as an admin" do
-    describe "#some_method" do
-      it "does some thing"
-    end
-  end
-end
-````
-
-## Additional/Optional Development Details
-
-### Code Coverage (local)
-
-Coverage for the ruby specs:
-
-    $ COVERAGE=true rspec
-
-Code coverage is reported to Code Climate on every CI build so there's a record of trending.
-
-### Using Guard
-
-Guard is configured to run ruby and jasmine specs, and also listen for livereload connections.
-
-    $ bundle exec guard
-
-### Using Mailcatcher
-
-    $ gem install mailcatcher
-    $ mailcatcher
-    $ open http://localhost:1080/
-
-Learn more at [mailcatcher.me](http://mailcatcher.me/). And please don't add mailcatcher to the Gemfile.
-
-### Continuous Integration and Deployment with CircleCI
-
-This project is configured for continuous integration and deployment with CircleCI and Heroku.
-
-Check out [circle.yml](circle.yml) and [bin/deploy.sh](bin/deploy.sh) for details.
+Open [http://localhost:2280](http://localhost:2280). You should see a large "Hello, World!" greeting.
 
 # Server Environments
 
 ### Hosting
 
-Acceptance and Production are hosted on Heroku under the _email@example.com_ account.
+...
 
 ### Environment Variables
 
@@ -107,7 +62,7 @@ Several common features and operational parameters can be set using environment 
 
 **Required**
 
-* ```SECRET_KEY_BASE``` - Secret key base for verfying signed cookies. Should be 30+ random characters and secret!
+* ```SECRET_KEY_BASE``` - Secret key base for verifying signed cookies. Should be 30+ random characters and secret!
 
 **Optional**
 
@@ -120,5 +75,4 @@ Several common features and operational parameters can be set using environment 
 
 ### Third Party Services
 
-* Heroku for hosting.
-* CircleCI for continuous integration and deployment.
+...
