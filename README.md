@@ -50,6 +50,21 @@ master branch correctly.
 
 Open [http://localhost:2280](http://localhost:2280). You should see a large "Hello, World!" greeting.
 
+## 4. Poke Around
+
+This machine is configured so that all of the services restart after a reboot. The only tricky bit there is located in
+``/etc/init.d/unicorn`` (on the vm).
+
+During a ``cap staging deploy``, unicorn is reloaded in a manner that supports a zero-downtime deploy. You can run
+apache bench, wrk, or siege and beat on the server through a deploy and (hopefully) see 0 errors or downtime.
+
+Application settings are loaded via the environment. Check out ``/var/www/rails-and-capistrano/shared/configuration``
+(on the vm) for the settings. Under normal circumstances, this file would be added by hand and not copied from version
+control. This is a sample app and I optimized for the out of the box experience. These settings are loaded for unicorn
+and for all capistrano commands.
+
+Static assets are served by nginx instead of the application server.
+
 # Server Environments
 
 ### Hosting
