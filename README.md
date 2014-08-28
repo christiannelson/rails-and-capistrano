@@ -48,7 +48,7 @@ system configuration, creating users, and generally getting the machine ready to
 This also takes a while and is very verbose, at the end though, you should see a message that suggests it deployed the
 master branch correctly.
 
-Open [http://localhost:2280](http://localhost:2280). You should see a large "Hello, World!" greeting.
+Open [http://192.168.50.100](http://192.168.50.100). You should see a large "Hello, World!" greeting.
 
 ## 4. Poke Around
 
