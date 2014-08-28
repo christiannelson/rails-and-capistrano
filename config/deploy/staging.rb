@@ -18,7 +18,7 @@
 
 set :rails_env, 'staging'
 
-server '127.0.0.1:2222', user: 'deploy', roles: %w{web app db}
+server '192.168.50.100', user: 'deploy', roles: %w{web app db}
 
 # Custom SSH Options
 # ==================
