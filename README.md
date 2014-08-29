@@ -1,12 +1,17 @@
 # Rails And Capistrano
 
-Sample Rails application that illustrates using Capistrano for deployment to a Vagrant VM.
+Sample project that illustrates using Capistrano to deploy a simple Ruby and Rails application to an Ubuntu server.
+
+Can't use Heroku or you're curious what a straightforward server setup might look like? You'd like to think there was only one right way to do this, but a couple of google searches later shows that there are many. This project aims to show a simple approach that covers the important points.
+
+This does not _require_ a cloud or physical server. A Vagrantfile and Ansible playbook are included so that you can easily provision a deploy target without any 3rd party services.
 
 **Details**
 * Ubuntu Server 14.04.1
 * Ansible script for provisioning Ubuntu as a web/app/db server
 * PostgreSQL 9.3 Database
 * Nginx web server (configured to serve static assets)
+* Ruby 2.1.2 installed via apt-get
 * Unicorn application server (configured for zero-downtime deploys)
 * Simple Rails 4.1 Application (generated using [raygun](https://github.com/carbonfive/raygun) with slight mods)
 * Capistrano 3 deployment configuration
@@ -24,8 +29,8 @@ each step should execute without error. If there's an error, stop and correct be
 
 ## 2. Create and Provision a Server with Vagrant
 
-We need a 'machine' to deploy to. Rather than spin up a cloud vm, this project includes a Vagrant file and Ansible
-configuration with detailed provisioning instructions. It's worth noting that Vagrant is only used here for convenience, in the real world, we would deploy to the cloud or some remote server. Though, parts of the Ansiable script would still apply.
+We need a 'machine' to deploy to. Rather than spin up a cloud server, this project includes a Vagrant file and Ansible
+playbook with detailed provisioning instructions. It's worth noting that Vagrant is only used here for convenience, in the real world, we would deploy to the cloud or some remote server. Though, parts of the Ansiable script would still apply.
 
 **Prerequisites**
 
@@ -48,9 +53,9 @@ system configuration, creating users, and generally getting the machine ready to
 This also takes a while and is very verbose, at the end though, there will be a message that suggests it deployed the
 master branch correctly.
 
-Open [http://192.168.50.100](http://192.168.50.100). You should see a large "Hello, World!" greeting.
-
 ## 4. Poke Around
+
+Open [http://192.168.50.100](http://192.168.50.100). You should see a large "Hello, World!" greeting.
 
 This machine is configured so that all of the services restart after a reboot. The only tricky bit there is located in
 ``/etc/init.d/unicorn`` (on the vm).
