@@ -82,7 +82,9 @@ Several common features and operational parameters can be set using environment 
 
 **Required**
 
+* ```RAILS_ENV``` - Rails environment to execute the application in (e.g. production, staging).
 * ```SECRET_KEY_BASE``` - Secret key base for verifying signed cookies. Should be 30+ random characters and secret!
+* ```DATABASE_URL``` - Connection information for the database.
 
 **Optional**
 
