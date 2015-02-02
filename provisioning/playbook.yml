@@ -23,6 +23,10 @@
       with_items:
         - ruby2.1
         - ruby2.1-dev
+        - ruby-switch
+
+    - name: ruby-switch | set default ruby
+      command: ruby-switch --set ruby2.1
 
     - name: apt | install postgresql
       apt: name={{ item }} state=latest
