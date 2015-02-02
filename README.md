@@ -11,7 +11,7 @@ This does not _require_ a cloud or physical server. A Vagrantfile and Ansible pl
 * Ansible script for provisioning Ubuntu as a web/app/db server
 * PostgreSQL 9.3 Database
 * Nginx web server (configured to serve static assets)
-* Ruby 2.1.2 installed via apt-get
+* Ruby 2.1.5 installed via apt-get
 * Unicorn application server (configured for zero-downtime deploys)
 * Simple Rails 4.1 Application (generated using [raygun](https://github.com/carbonfive/raygun) with slight mods)
 * Capistrano 3 deployment configuration
